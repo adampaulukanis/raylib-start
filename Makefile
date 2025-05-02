@@ -3,7 +3,8 @@ CFLAGS=-g -Wall -Wextra -Werror -lm -I"/usr/local/include" -L"/usr/local/lib" -l
 
 all: minimal first gameScreen move-ball \
 	textures play1 player_big \
-	x1 drawlines grid
+	x1 drawlines snake
+	ectags -R *.{c,h}
 
 gameScreen: gameScreen.c
 
@@ -23,7 +24,7 @@ x1: x1.c
 
 drawlines: drawlines.c
 
-grid: grid.c
+snake: snake.c
 
 clean:
 	rm -rf *.core a.out first
@@ -32,4 +33,4 @@ clean:
 	rm -rf textures play1 player_big
 	rm -rf x1
 	rm -rf drawlines
-	rm -rf grid
+	rm -rf snake

@@ -4,7 +4,7 @@
 
 #define SQUARE_SIZE      31
 #define SNAKE_LENGTH    256
-#define SPEED            10
+#define SPEED             5
 
 typedef struct Snake {
     Vector2 position;
@@ -12,6 +12,13 @@ typedef struct Snake {
     Vector2 speed;
     Color color;
 } Snake;
+
+typedef struct Food {
+    Vector2 position;
+    Vector2 size;
+    bool active;
+    Color color;
+} Food;
 
 static const int screenWidth = 800;
 static const int screenHeight = 450;
@@ -25,10 +32,12 @@ static Vector2 snakePosition[SNAKE_LENGTH] = { 0 };
 static bool allowMove = false;
 static Vector2 offset = { 0 };
 static int counterTail = 0;
+static Food fruit = { 0 };
 
 // Declarations
 void InitGame(void);
 void DrawMyGrids(void);
+void DrawFruit(void);
 void DrawSnake(void);
 void UpdateGame(void);
 void DrawGame(void);
@@ -42,7 +51,6 @@ int main(void)
     while (!WindowShouldClose()) {
         UpdateGame();
         DrawGame();
-        DrawFPS(10, 10);
     }
 
     CloseWindow();
@@ -61,15 +69,23 @@ void InitGame(void)
     offset.y = screenHeight%SQUARE_SIZE;
 
     for (int i = 0; i < SNAKE_LENGTH; i++) {
+        // Start position
         snake[i].position = (Vector2){ offset.x/2, offset.y/2 };
+        //snake[i].position = (Vector2){ SQUARE_SIZE + offset.x/2, SQUARE_SIZE + offset.y/2 };
         snake[i].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE };
         //snake[i].speed = (Vector2){ SQUARE_SIZE, 0 };
-        snake[i].color = BLUE;
+        if (i == 0) snake[i].color = GREEN;
+        else if (i%2 == 0) snake[i].color = BLUE;
+        else snake[i].color = RED;
     }
 
     for (int i = 0; i < SNAKE_LENGTH; i++) {
         snakePosition[i] = (Vector2){ 0.0f, 0.0f };
     }
+
+    fruit.size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE };
+    fruit.color = GREEN;
+    fruit.active = false;
 }
 
 void DrawMyGrids(void)
@@ -103,7 +119,8 @@ void UpdateGame(void)
 
             //{ Snake movement
             if (frameCounter%SPEED == 0) {
-                for (int i = 0; i < counterTail; i++) snakePosition[i] = snake[i].position;
+                for (int i = 0; i < counterTail; i++)
+                    snakePosition[i] = snake[i].position;
 
                 for (int i = 0; i < counterTail; i++) {
                     if (i == 0) {
@@ -123,16 +140,46 @@ void UpdateGame(void)
                (snake[0].position.y < 0))
             {
                 snake[0].color = YELLOW;
-                snake[0].position.x = offset.x/2;
-                snake[0].position.y = offset.y/2;
+                snake[0].position.x = 3 * SQUARE_SIZE + offset.x/2;
+                snake[0].position.y = 7 * SQUARE_SIZE + offset.y/2;
             } else
-                snake[0].color = GREEN;
+                snake[0].color = BLACK;
             //}
             //{ Grow
             if (IsKeyPressed(KEY_G))
             {
                 snake[counterTail].position = snakePosition[counterTail - 1];
                 counterTail += 1;
+            }
+            //}
+            //{ Fruit position calculations
+            if (!fruit.active)
+            {
+                fruit.active = true;
+                fruit.position = (Vector2){
+                    GetRandomValue(0, (screenWidth/SQUARE_SIZE) - 1)*SQUARE_SIZE + offset.x/2,
+                    GetRandomValue(0, (screenHeight/SQUARE_SIZE) - 1)*SQUARE_SIZE + offset.y/2
+                };
+
+                for (int i = 0; i < counterTail; i++)
+                {
+                    while ((fruit.position.x == snake[i].position.x) && (fruit.position.y == snake[i].position.y))
+                    {
+                        fruit.position = (Vector2){
+                            GetRandomValue(0, (screenWidth/SQUARE_SIZE) - 1)*SQUARE_SIZE + offset.x/2,
+                            GetRandomValue(0, (screenHeight/SQUARE_SIZE) - 1)*SQUARE_SIZE + offset.y/2
+                        };
+                    }
+                }
+            }
+            //}
+            //{ Collision
+            if ((snake[0].position.x < (fruit.position.x + fruit.size.x) && (snake[0].position.x + snake[0].size.x) > fruit.position.x) &&
+                    (snake[0].position.y < (fruit.position.y + fruit.size.y) && (snake[0].position.y + snake[0].size.y) > fruit.position.y))
+            {
+                snake[counterTail].position = snakePosition[counterTail - 1];
+                counterTail += 1;
+                fruit.active = false;
             }
             //}
 
@@ -150,8 +197,18 @@ void DrawGame(void)
     if (!gameOver)
     {
         DrawMyGrids();
+        DrawFruit();
         DrawSnake();
+
+        // Display PAUSED in the centre of the screen
+        if (pause) DrawText("PAUSED", screenWidth/2 - MeasureText("PAUSED", 40)/2, screenHeight/2 - 40, 40, PINK);
     }
+    DrawFPS(10, 10);
 
     EndDrawing();
+}
+
+void DrawFruit(void)
+{
+    DrawRectangleV(fruit.position, fruit.size, fruit.color);
 }

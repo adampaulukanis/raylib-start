@@ -4,7 +4,6 @@
 
 #define SQUARE_SIZE      31
 #define SNAKE_LENGTH    256
-#define SPEED             5
 
 typedef struct Snake {
     Vector2 position;
@@ -26,6 +25,7 @@ static const int screenHeight = 450;
 static int frameCounter = 0;
 static bool gameOver = false;
 static bool pause = false;
+static int speed = 13;
 
 static Snake snake[SNAKE_LENGTH] = { 0 };
 static Vector2 snakePosition[SNAKE_LENGTH] = { 0 };
@@ -118,7 +118,7 @@ void UpdateGame(void)
             if (IsKeyPressed(KEY_DOWN)) snake[0].speed = (Vector2){ 0, SQUARE_SIZE };
 
             //{ Snake movement
-            if (frameCounter%SPEED == 0) {
+            if (frameCounter%speed == 0) {
                 for (int i = 0; i < counterTail; i++)
                     snakePosition[i] = snake[i].position;
 
@@ -180,6 +180,8 @@ void UpdateGame(void)
                 snake[counterTail].position = snakePosition[counterTail - 1];
                 counterTail += 1;
                 fruit.active = false;
+                speed -= 1;
+                if (speed <=0) speed = 1;
             }
             //}
 

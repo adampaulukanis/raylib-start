@@ -1,8 +1,9 @@
+#include <stdio.h>
 #include "raylib.h"
 
 // TODO: slow down my snake!
 
-#define SQUARE_SIZE      31
+#define SQUARE_SIZE      51
 #define SNAKE_LENGTH    256
 
 typedef struct Snake {
@@ -25,7 +26,7 @@ static const int screenHeight = 450;
 static int frameCounter = 0;
 static bool gameOver = false;
 static bool pause = false;
-static int speed = 13;
+static double speed = 13;
 
 static Snake snake[SNAKE_LENGTH] = { 0 };
 static Vector2 snakePosition[SNAKE_LENGTH] = { 0 };
@@ -55,6 +56,8 @@ int main(void)
 
     CloseWindow();
 
+    printf("speed = %f", speed);
+
     return 0;
 }
 
@@ -74,17 +77,17 @@ void InitGame(void)
         //snake[i].position = (Vector2){ SQUARE_SIZE + offset.x/2, SQUARE_SIZE + offset.y/2 };
         snake[i].size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE };
         //snake[i].speed = (Vector2){ SQUARE_SIZE, 0 };
-        if (i == 0) snake[i].color = GREEN;
+        if (i == 0) snake[i].color = BLACK;
         else if (i%2 == 0) snake[i].color = BLUE;
-        else snake[i].color = RED;
+        else snake[i].color = GREEN;
     }
 
     for (int i = 0; i < SNAKE_LENGTH; i++) {
-        snakePosition[i] = (Vector2){ 0.0f, 0.0f };
+        snakePosition[i] = (Vector2){ -100.0f, -100.0f };
     }
 
     fruit.size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE };
-    fruit.color = GREEN;
+    fruit.color = YELLOW;
     fruit.active = false;
 }
 
@@ -103,6 +106,7 @@ void DrawSnake(void)
     for (int i = 0; i < counterTail; i++) {
         DrawRectangleV(snake[i].position, snake[i].size, snake[i].color);
     }
+    DrawText(TextFormat("%d", counterTail), snake[0].position.x, snake[0].position.y, 25, RED);
 }
 
 void UpdateGame(void)
@@ -116,9 +120,15 @@ void UpdateGame(void)
             if (IsKeyPressed(KEY_RIGHT)) snake[0].speed = (Vector2){ SQUARE_SIZE, 0 };
             if (IsKeyPressed(KEY_UP)) snake[0].speed = (Vector2){ 0, -SQUARE_SIZE };
             if (IsKeyPressed(KEY_DOWN)) snake[0].speed = (Vector2){ 0, SQUARE_SIZE };
-
+            //{ Grow
+            if (IsKeyPressed(KEY_G))
+            {
+                snake[counterTail].position = snakePosition[counterTail - 1];
+                counterTail += 1;
+            }
+            //}
             //{ Snake movement
-            if (frameCounter%speed == 0) {
+            if ((frameCounter%((int)speed)) == 0) {
                 for (int i = 0; i < counterTail; i++)
                     snakePosition[i] = snake[i].position;
 
@@ -144,13 +154,6 @@ void UpdateGame(void)
                 snake[0].position.y = 7 * SQUARE_SIZE + offset.y/2;
             } else
                 snake[0].color = BLACK;
-            //}
-            //{ Grow
-            if (IsKeyPressed(KEY_G))
-            {
-                snake[counterTail].position = snakePosition[counterTail - 1];
-                counterTail += 1;
-            }
             //}
             //{ Fruit position calculations
             if (!fruit.active)
@@ -180,7 +183,7 @@ void UpdateGame(void)
                 snake[counterTail].position = snakePosition[counterTail - 1];
                 counterTail += 1;
                 fruit.active = false;
-                speed -= 1;
+                speed -= 0.25;
                 if (speed <=0) speed = 1;
             }
             //}
@@ -213,4 +216,5 @@ void DrawGame(void)
 void DrawFruit(void)
 {
     DrawRectangleV(fruit.position, fruit.size, fruit.color);
+    DrawCircle(fruit.position.x + SQUARE_SIZE/2, fruit.position.y + SQUARE_SIZE/2, SQUARE_SIZE/4, GREEN);
 }

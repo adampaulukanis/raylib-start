@@ -56,7 +56,7 @@ int main(void)
 
     CloseWindow();
 
-    printf("speed = %f", speed);
+    printf("speed = %.02f", speed);
 
     return 0;
 }
@@ -104,6 +104,7 @@ void DrawMyGrids(void)
 void DrawSnake(void)
 {
     for (int i = 0; i < counterTail; i++) {
+
         DrawRectangleV(snake[i].position, snake[i].size, snake[i].color);
     }
     DrawText(TextFormat("%d", counterTail), snake[0].position.x, snake[0].position.y, 25, RED);
@@ -184,7 +185,7 @@ void UpdateGame(void)
                 counterTail += 1;
                 fruit.active = false;
                 speed -= 0.25;
-                if (speed <=0) speed = 1;
+                if (speed <= 1) speed = 1;
             }
             //}
 

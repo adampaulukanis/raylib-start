@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include "raylib.h"
 
-// TODO: slow down my snake!
-
-#define SQUARE_SIZE      21
+#define SQUARE_SIZE      51
 #define SNAKE_LENGTH    256
 
 typedef struct Snake {
@@ -20,8 +18,9 @@ typedef struct Food {
     Color color;
 } Food;
 
-static const int screenWidth = 800;
-static const int screenHeight = 450;
+static int screenWidth = 800;
+static int screenHeight = 600;
+static int display = 0;
 
 static int frameCounter = 0;
 static bool gameOver = false;
@@ -45,11 +44,16 @@ void DrawGame(void);
 
 int main(void)
 {
-    InitWindow(screenWidth, screenHeight, "Snake");
+    SetConfigFlags(FLAG_FULLSCREEN_MODE);
+    InitWindow(GetScreenWidth(), GetScreenHeight(), "Snake");
     InitGame();
     SetTargetFPS(60);
 
     while (!WindowShouldClose()) {
+        display = GetCurrentMonitor(); /* display we are on right now */
+        screenWidth = GetMonitorWidth(display);
+        screenHeight = GetMonitorHeight(display);
+
         UpdateGame();
         DrawGame();
     }
@@ -68,6 +72,9 @@ void InitGame(void)
     pause = false;
     counterTail = 1;
     allowMove = false;
+    display = GetCurrentMonitor(); /* display we are on right now */
+    screenWidth = GetMonitorWidth(display);
+    screenHeight = GetMonitorHeight(display);
     offset.x = screenWidth%SQUARE_SIZE;
     offset.y = screenHeight%SQUARE_SIZE;
 
@@ -87,7 +94,7 @@ void InitGame(void)
     }
 
     fruit.size = (Vector2){ SQUARE_SIZE, SQUARE_SIZE };
-    fruit.color = YELLOW;
+    fruit.color = PINK;
     fruit.active = false;
 }
 

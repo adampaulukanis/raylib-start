@@ -3,7 +3,7 @@
 
 // TODO: slow down my snake!
 
-#define SQUARE_SIZE      51
+#define SQUARE_SIZE      21
 #define SNAKE_LENGTH    256
 
 typedef struct Snake {
@@ -45,7 +45,7 @@ void DrawGame(void);
 
 int main(void)
 {
-    InitWindow(screenWidth, screenHeight, "Draw a grid");
+    InitWindow(screenWidth, screenHeight, "Snake");
     InitGame();
     SetTargetFPS(60);
 
@@ -103,9 +103,11 @@ void DrawMyGrids(void)
 
 void DrawSnake(void)
 {
-    for (int i = 0; i < counterTail; i++) {
-
-        DrawRectangleV(snake[i].position, snake[i].size, snake[i].color);
+    int i = 0;
+    DrawCircle(snake[0].position.x + SQUARE_SIZE/2, snake[0].position.y + SQUARE_SIZE/2, SQUARE_SIZE/1.6, YELLOW);
+    DrawCircle(snake[0].position.x + SQUARE_SIZE/2, snake[0].position.y + SQUARE_SIZE/2, SQUARE_SIZE/2, snake[0].color);
+    for (i = 1; i < counterTail; i++) {
+        DrawCircle(snake[i].position.x + SQUARE_SIZE/2, snake[i].position.y + SQUARE_SIZE/2, SQUARE_SIZE/2, snake[i].color);
     }
     DrawText(TextFormat("%d", counterTail), snake[0].position.x, snake[0].position.y, 25, RED);
 }

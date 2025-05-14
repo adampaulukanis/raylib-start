@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include "raylib.h"
 
-#define SQUARE_SIZE      51
-#define SNAKE_LENGTH    256
+#include "snake.h"
 
 typedef struct Snake {
     Vector2 position;
@@ -33,14 +32,6 @@ static bool allowMove = false;
 static Vector2 offset = { 0 };
 static int counterTail = 0;
 static Food fruit = { 0 };
-
-// Declarations
-void InitGame(void);
-void DrawMyGrids(void);
-void DrawFruit(void);
-void DrawSnake(void);
-void UpdateGame(void);
-void DrawGame(void);
 
 int main(void)
 {
